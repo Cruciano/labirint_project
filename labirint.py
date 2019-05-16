@@ -102,6 +102,79 @@ def draw_map(map):
         y += BLOCK_HEIGHT
         x = 64
 
+def getAdjacencyMatrix(map):
+    #Знаходження вершин
+    vertices = []
+    x = y = 0
+    for line in map:
+        for el in line:
+            if el == 2 or el == 3:
+                vertices.append((y, x))
+            x += 1
+        y += 1
+        x = 0
+    i = j = 1
+    isVertice = True
+    while j < len(map)-1:
+        while i < len(map[0])-1:
+            if map[j][i] == 0:
+                if (map[j][i-1] != 1 and map[j][i+1] != 1) and (map[j-1][i] == 1 and map[j+1][i] == 1):
+                    isVertice = False
+
+                if (map[j][i-1] == 1 and map[j][i+1] == 1) and (map[j-1][i] != 1 and map[j+1][i] != 1):
+                    isVertice = False
+
+                if isVertice:
+                    vertices.append((j, i))
+
+            isVertice = True
+            i += 1
+        j += 1
+        i = 1
+
+    #Формування матриці
+    adjacencyMatrix = [0]*len(vertices)
+    for i in range(len(vertices)):
+        adjacencyMatrix[i] = [0]*len(vertices)
+
+    i = 0
+    for v in vertices:
+        if v == vertices[1]:
+            i += 1
+            continue
+        dist = 0
+        findVertice = False
+        x1 = v[0]
+        y1 = v[1]+1
+        while map[x1][y1] == 0 and not findVertice:
+            j = 0
+            for ver in vertices:
+                if ver == (x1, y1):
+                    adjacencyMatrix[i][j] = dist+1
+                    adjacencyMatrix[j][i] = dist+1
+                    findVertice = True
+                j += 1
+            dist += 1
+            y1 += 1
+
+        dist = 0
+        findVertice = False
+        x1 = v[0]+1
+        y1 = v[1]
+        while map[x1][y1] == 0 and not findVertice:
+            j = 0
+            for ver in vertices:
+                if ver == (x1, y1):
+                    adjacencyMatrix[i][j] = dist+1
+                    adjacencyMatrix[j][i] = dist+1
+                    findVertice = True
+                j += 1
+            dist += 1
+            x1 += 1
+        i += 1
+    return adjacencyMatrix
+
+
 def text_objects(text, font, color):  # color (R,G,B)
     textSurface = font.render(text, True, color)
     return textSurface, textSurface.get_rect()
